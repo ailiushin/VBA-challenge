@@ -1,0 +1,125 @@
+Sub WorksheetLoop()
+
+'Looping through entire excel worksheet
+
+'Loop through all of the worksheets in the active workbook
+For Each ws In Worksheets
+
+
+    'Setting an initial variable for stock ticker name
+    Dim ticker_name As String
+
+    'Setting an initial variable for ticker volume
+    Dim ticker_volume As Double
+    ticker_volume = 0
+
+    'Keeping track of the location for each ticker symbol
+    Dim summary_row As Double
+    summary_row = 2
+
+    'Setting an initial variable for yearly change
+    Dim yearly_change As Double
+    yearly_change = 0
+
+    'Setting an initial variable for percent change
+    Dim percent_change As String
+    percent_change = 0
+
+    'Print header names
+    ws.Cells(1, 9).Value = "Ticker Name"
+    ws.Cells(1, 10).Value = "Yearly Change"
+    ws.Cells(1, 11).Value = "Percent Change"
+    ws.Cells(1, 12).Value = "Total Stock Volume"
+
+    'Locate the last rown in the column A
+    lastrowA = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    'Setting location to determine the first row for oppenig value for each stock
+    Dim startvalue As Double
+    startvalue = ws.Cells(2, 3).Value
+
+    'Loop through all ticker symbols
+    For I = 2 To lastrowA
+
+        'Checking if the ticker symbol is the same, if not then print the ticker name
+        If ws.Cells(I + 1, 1).Value <> ws.Cells(I, 1).Value Then
+    
+        'Set the ticker name
+        ticker_name = ws.Cells(I, 1).Value
+    
+        'Add to the ticker volume
+        ticker_volume = ticker_volume + ws.Cells(I, 7).Value
+    
+        'Calculate yearly change
+        yearly_change = startvalue - ws.Cells(I, 6).Value
+    
+        'Calculate percent change
+        percent_change = yearly_change / startvalue
+    
+        'Print the ticker name in the Summary Column I
+        ws.Range("I" & summary_row).Value = ticker_name
+    
+        'Print the yearly change in the Summary Column J
+        ws.Range("J" & summary_row).Value = yearly_change
+    
+        'Print the percent change in the Summary Column K in percent format
+        ws.Range("K" & summary_row).Value = FormatPercent(percent_change)
+    
+        'Print the ticker volume in the Summary Column L
+        ws.Range("L" & summary_row).Value = ticker_volume
+     
+        'Adding one to the summary row
+        summary_row = summary_row + 1
+    
+        'Reset ticker volume to zero
+        ticker_volume = 0
+    
+        'Reset yearly change to zero
+        yearly_change = 0
+    
+        'Reset percent change to zero
+        percent_change = 0
+        
+        'Move to the next stock's openning value
+        startvalue = ws.Cells(I + 1, 3)
+ 
+        'If the cell immediately following a row is the same ticker name...
+        Else
+ 
+        ' Add to the ticker_volume
+        ticker_volume = ticker_volume + ws.Cells(I, 7).Value
+ 
+        End If
+    
+Next I
+
+        'Locate the last rown in the column J
+        lastrowJ = ws.Cells(Rows.Count, 10).End(xlUp).Row
+ 
+        'Loop through all values in yearly change column
+        For j = 2 To lastrowJ
+
+            'Conditional formating for yearly changes with negative returns
+            If ws.Cells(j, 10) < 0 Then
+        
+            'Red for negative returns
+            ws.Cells(j, 10).Interior.ColorIndex = 3
+        
+            'Conditional formating for yearly changes with positive returns
+            ElseIf ws.Cells(j, 10) > 0 Then
+        
+            'Green for positive returns
+            ws.Cells(j, 10).Interior.ColorIndex = 4
+            
+            'No color for returns that equl zero
+            End If
+        
+        Next j
+
+Next ws
+
+MsgBox ("That was easy")
+
+End Sub
+
+
